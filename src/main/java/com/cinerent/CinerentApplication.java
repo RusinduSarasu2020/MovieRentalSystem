@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CinerentApplication {
     public static void main(String[] args) {
         SpringApplication.run(CinerentApplication.class, args);
-        
+        System.out.println("\n🎬 CineRent running → http://localhost:8080\n");
     }
 }
