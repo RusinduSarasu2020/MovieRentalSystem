@@ -6,384 +6,612 @@
   <title>My Rentals — CineRent</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    body {
-      background: #0f0c29;
-      color: #fff;
-      min-height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
+  <style>
+    :root {
+      --bg:        #080810;
+      --surface:   #0e0e1a;
+      --surface2:  #13131f;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --text:      #e8e4f0;
+      --muted:     #5a556e;
+      --muted2:    #7c7590;
+      --accent:    #c8a96e;
+      --accent2:   #e4c98a;
+      --red:       #e05252;
+      --green:     #5cba87;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --font-mono:    'DM Mono', monospace;
     }
 
-    /* ── Navbar ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise Grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.5;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2a2740; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* Navbar */
     .navbar {
       position: sticky;
       top: 0;
-      z-index: 100;
-      padding: 14px 32px;
+      z-index: 500;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(15,12,41,0.9);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0 48px;
+      height: 60px;
+      background: rgba(8,8,16,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
     }
 
     .nav-brand {
-      font-size: 1.5rem;
-      font-weight: 800;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      color: var(--accent);
       text-decoration: none;
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      line-height: 1;
     }
 
-    .nav-right { display: flex; align-items: center; gap: 10px; }
-
-    .nav-user {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.88rem;
-      color: #a89fc8;
-      margin-right: 6px;
+    .nav-brand span {
+      color: var(--muted2);
+      font-size: 1rem;
+      letter-spacing: 6px;
+      font-family: var(--font-mono);
+      margin-left: 2px;
     }
 
-    .nav-user .avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg,#ff6a00,#ee0979);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 700; color: #fff;
-    }
+    .nav-right { display: flex; align-items: center; gap: 6px; }
 
     .btn-nav {
       padding: 7px 18px;
-      border-radius: 18px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 500;
       text-decoration: none;
-      transition: all 0.2s;
+      letter-spacing: 0.4px;
+      transition: all 0.18s;
+      font-family: var(--font-mono);
     }
 
-    .btn-nav-outline {
-      border: 1.5px solid rgba(255,255,255,0.15);
-      color: #c4b8e0;
+    .btn-nav-ghost {
+      color: var(--muted2);
       background: transparent;
+      border: 1px solid transparent;
     }
-    .btn-nav-outline:hover {
-      border-color: rgba(238,9,121,0.45);
-      color: #fff;
-      background: rgba(238,9,121,0.08);
-    }
-
-    .btn-nav-warn {
-      border: 1.5px solid rgba(255,193,7,0.3);
-      color: #ffc107;
-      background: rgba(255,193,7,0.06);
-    }
-    .btn-nav-warn:hover { background: rgba(255,193,7,0.14); color: #ffc107; }
-
-    /* ── Page Hero ── */
-    .page-hero {
-      background: linear-gradient(135deg, rgba(238,9,121,0.1) 0%, rgba(255,106,0,0.07) 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 36px 32px 28px;
-      text-align: center;
+    .btn-nav-ghost:hover {
+      color: var(--text);
+      border-color: var(--border2);
+      background: rgba(255,255,255,0.04);
     }
 
-    .page-hero h2 {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 6px;
+    .btn-nav-logout {
+      color: var(--accent);
+      background: rgba(200,169,110,0.07);
+      border: 1px solid rgba(200,169,110,0.2);
+    }
+    .btn-nav-logout:hover {
+      background: rgba(200,169,110,0.14);
+      border-color: rgba(200,169,110,0.4);
+      color: var(--accent2);
     }
 
-    .page-hero h2 span {
-      background: linear-gradient(90deg,#ff6a00,#ee0979);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .page-hero p { color: #7a6fa0; font-size: 0.95rem; }
-
-    /* ── Main Content ── */
-    .main-content {
-      max-width: 1264px;
+    /* Page Header */
+    .page-header {
+      max-width: 1300px;
       margin: 0 auto;
-      padding: 36px 32px 60px;
+      padding: 56px 48px 0;
     }
 
-    /* ── Stats Row ── */
-    .stats-row {
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow-line {
+      width: 32px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .eyebrow-text {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 5vw, 5rem);
+      line-height: 0.93;
+      letter-spacing: 2px;
+      color: var(--text);
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+
+    .page-title span {
+      color: var(--accent);
+    }
+
+    /* Stats Row */
+    .stats-band {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 48px 48px;
+    }
+
+    .stats-inner {
+      border-top: 1px solid var(--border);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 14px;
-      margin-bottom: 36px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      padding-top: 28px;
     }
 
-    .stat-card {
-      background: #1a1740;
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 14px;
-      padding: 18px 20px;
-      text-align: center;
-      transition: border-color 0.2s;
+    .stat-item {
+      padding: 0 32px 0 0;
+      position: relative;
     }
-    .stat-card:hover { border-color: rgba(238,9,121,0.25); }
 
-    .stat-value {
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(90deg,#ff6a00,#ee0979);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .stat-item + .stat-item {
+      padding-left: 32px;
+      border-left: 1px solid var(--border);
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 3.8rem;
+      line-height: 1;
+      letter-spacing: 1px;
       margin-bottom: 4px;
     }
 
+    .stat-num.total  { color: var(--text); }
+    .stat-num.active { color: var(--accent); }
+    .stat-num.done   { color: var(--green); }
+
     .stat-label {
-      font-size: 0.78rem;
-      color: #5a5280;
-      font-weight: 600;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 2.5px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      color: var(--muted);
     }
 
-    /* ── Rental Cards ── */
-    .rentals-list { display: flex; flex-direction: column; gap: 14px; }
-
-    .rental-card {
-      background: #1a1740;
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      padding: 20px 24px;
+    /* Band Divider */
+    .band-divider {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 48px 40px;
       display: flex;
       align-items: center;
-      gap: 20px;
-      transition: border-color 0.25s, transform 0.25s;
-    }
-    .rental-card:hover {
-      border-color: rgba(238,9,121,0.22);
-      transform: translateX(4px);
+      gap: 0;
     }
 
-    /* Mini poster thumbnail */
+    .band-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-right: 20px;
+      white-space: nowrap;
+    }
+
+    .band-rule { flex: 1; height: 1px; background: var(--border); }
+
+    /* Main Content */
+    .main-wrap {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 48px 80px;
+    }
+
+    /* Rental Card */
+    .rentals-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .rental-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 22px 24px;
+      display: grid;
+      grid-template-columns: 56px 1fr auto auto auto;
+      align-items: center;
+      gap: 22px;
+      transition: border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rental-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--border);
+      transition: background 0.2s;
+    }
+
+    .rental-card:hover { border-color: rgba(200,169,110,0.2); }
+    .rental-card:hover::before { background: var(--accent); }
+
+    /* Poster Thumb */
     .rental-thumb {
       width: 56px;
       height: 80px;
-      border-radius: 8px;
       object-fit: cover;
+      border-radius: 2px;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: block;
       flex-shrink: 0;
-      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .rental-thumb-placeholder {
       width: 56px;
       height: 80px;
-      border-radius: 8px;
-      background: #26235c;
-      border: 1px solid rgba(255,255,255,0.08);
-      flex-shrink: 0;
+      border-radius: 2px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      flex-shrink: 0;
     }
 
-    .rental-main { flex: 1; min-width: 0; }
+    .thumb-icon {
+      width: 18px; height: 18px;
+      color: var(--muted);
+    }
+
+    /* Info */
+    .rental-info { min-width: 0; }
 
     .rental-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 4px;
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      letter-spacing: 1px;
+      color: var(--text);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 8px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .rental-sub {
-      font-size: 0.78rem;
-      color: #6e658f;
-      margin-bottom: 12px;
+    .rental-meta {
       display: flex;
       gap: 6px;
       align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
 
-    .rental-sub .dot { color: #3d3660; }
+    .meta-pill {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.3px;
+      color: var(--muted2);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 2px;
+    }
+
+    .meta-sep { color: var(--muted); font-size: 0.6rem; }
 
     .rental-dates {
       display: flex;
-      gap: 20px;
+      gap: 22px;
       flex-wrap: wrap;
     }
 
-    .date-item { font-size: 0.78rem; }
-    .date-label { color: #5a5280; margin-bottom: 2px; }
-    .date-value { color: #a89fc8; font-weight: 600; }
+    .date-item {}
 
-    /* Status badge */
+    .date-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .date-value {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text);
+      letter-spacing: 0.3px;
+    }
+
+    /* Status */
+    .status-col { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+
     .status-badge {
-      padding: 5px 14px;
-      border-radius: 16px;
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 13px;
+      border-radius: 2px;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .status-active {
-      background: rgba(238,9,121,0.12);
-      border: 1px solid rgba(238,9,121,0.3);
-      color: #ee0979;
+      background: rgba(200,169,110,0.08);
+      border: 1px solid rgba(200,169,110,0.22);
+      color: var(--accent);
+    }
+
+    .status-active .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-gold 2s infinite;
     }
 
     .status-returned {
-      background: rgba(34,197,94,0.1);
-      border: 1px solid rgba(34,197,94,0.25);
-      color: #22c55e;
+      background: rgba(92,186,135,0.08);
+      border: 1px solid rgba(92,186,135,0.22);
+      color: var(--green);
     }
 
-    /* Late fee */
+    .status-returned .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    @keyframes pulse-gold {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    /* Late Fee */
+    .fee-col { flex-shrink: 0; }
+
     .late-fee {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #ef4444;
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.2);
-      border-radius: 8px;
-      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--red);
+      background: rgba(224,82,82,0.08);
+      border: 1px solid rgba(224,82,82,0.2);
+      border-radius: 2px;
+      padding: 5px 12px;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .no-fee {
-      font-size: 0.8rem;
-      color: #3d3660;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.5px;
     }
 
-    .rental-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; flex-shrink: 0; }
+    /* Action */
+    .action-col { flex-shrink: 0; }
 
     .btn-watch {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 9px 20px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      color: #fff;
-      font-weight: 700;
-      font-size: 0.85rem;
+      gap: 8px;
+      padding: 11px 24px;
+      background: var(--accent);
+      color: #0a0800;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
       text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 14px rgba(238,9,121,0.22);
+      border-radius: 2px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(200,169,110,0.15);
       white-space: nowrap;
     }
+
     .btn-watch:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(238,9,121,0.38);
-      color: #fff;
+      background: var(--accent2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(200,169,110,0.25);
+      color: #050400;
     }
 
-    /* ── Empty State ── */
+    /* Empty State */
     .empty-state {
+      padding: 80px 24px;
       text-align: center;
-      padding: 80px 20px;
-      background: rgba(26,23,64,0.4);
-      border: 1px dashed rgba(255,255,255,0.07);
-      border-radius: 20px;
+      border: 1px dashed rgba(255,255,255,0.06);
+      border-radius: 3px;
     }
 
-    .empty-icon { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.35; }
-    .empty-state h4 { font-size: 1.2rem; color: #5a5280; margin-bottom: 8px; }
-    .empty-state p  { font-size: 0.88rem; color: #3d3660; margin-bottom: 20px; }
+    .empty-frame {
+      width: 64px; height: 64px;
+      border: 1px solid var(--border2);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      color: var(--muted);
+      position: relative;
+    }
+
+    .empty-frame::before,
+    .empty-frame::after {
+      content: '';
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: var(--accent);
+      border-style: solid;
+      opacity: 0.4;
+    }
+    .empty-frame::before { top: -4px; left: -4px; border-width: 1px 0 0 1px; }
+    .empty-frame::after  { bottom: -4px; right: -4px; border-width: 0 1px 1px 0; }
+
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .empty-sub {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
 
     .btn-browse {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 11px 28px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      color: #c4b8e0;
+      padding: 12px 28px;
       background: transparent;
-      font-weight: 600;
-      font-size: 0.9rem;
+      color: var(--muted2);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
       text-decoration: none;
-      transition: all 0.2s;
-    }
-    .btn-browse:hover {
-      border-color: rgba(238,9,121,0.4);
-      color: #fff;
-      background: rgba(238,9,121,0.07);
+      border-radius: 2px;
+      border: 1px solid var(--border2);
+      transition: all 0.18s;
     }
 
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0f0c29; }
-    ::-webkit-scrollbar-thumb { background: #302b63; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #ee0979; }
+    .btn-browse:hover {
+      color: var(--text);
+      border-color: rgba(200,169,110,0.35);
+      background: rgba(200,169,110,0.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .navbar { padding: 0 20px; }
+      .page-header, .stats-band, .band-divider, .main-wrap { padding-left: 20px; padding-right: 20px; }
+      .rental-card { grid-template-columns: 48px 1fr; grid-template-rows: auto auto auto; gap: 14px; }
+      .status-col, .fee-col, .action-col { grid-column: 2; justify-content: flex-start; flex-direction: row; flex-wrap: wrap; }
+      .stats-inner { grid-template-columns: 1fr 1fr 1fr; gap: 0; }
+    }
+
+    @media (max-width: 600px) {
+      .stats-inner { grid-template-columns: 1fr; gap: 20px; }
+      .stat-item + .stat-item { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 20px; }
+      .rental-card { padding: 16px; }
+      .rental-title { font-size: 1.1rem; }
+    }
   </style>
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="navbar">
-  <a href="/home" class="nav-brand">🎬 CineRent</a>
+  <a href="/home" class="nav-brand">CINERENT<span>STREAM</span></a>
   <div class="nav-right">
-    <div class="nav-user">
-      <div class="avatar">${not empty sessionScope.username ? sessionScope.username.substring(0,1).toUpperCase() : 'U'}</div>
-      <span>${not empty sessionScope.username ? sessionScope.username : 'User'}</span>
-    </div>
-    <a href="/home" class="btn-nav btn-nav-outline">
-      <i class="fas fa-home"></i> Browse
+    <a href="/home" class="btn-nav btn-nav-ghost">
+      <i class="fas fa-film" style="font-size:0.7rem;margin-right:4px;"></i> Browse
     </a>
-    <a href="/logout" class="btn-nav btn-nav-warn">
-      <i class="fas fa-right-from-bracket"></i> Logout
+    <a href="/logout" class="btn-nav btn-nav-logout">
+      <i class="fas fa-right-from-bracket" style="font-size:0.7rem;margin-right:4px;"></i> Logout
     </a>
   </div>
 </nav>
 
-<!-- Page Hero -->
-<div class="page-hero">
-  <h2>My <span>Rentals</span></h2>
-  <p>Track your active and past movie rentals.</p>
+<!-- Page Header -->
+<div class="page-header">
+  <div class="eyebrow">
+    <div class="eyebrow-line"></div>
+    <span class="eyebrow-text">Account</span>
+  </div>
+  <h1 class="page-title">My <span>Rentals</span></h1>
+</div>
+
+<!-- Stats Band -->
+<c:if test="${not empty rentals}">
+  <div class="stats-band">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-num total">${rentals.size()}</div>
+        <div class="stat-label">Total Rentals</div>
+      </div>
+      <div class="stat-item">
+        <c:set var="activeCount" value="0"/>
+        <c:forEach var="r" items="${rentals}">
+          <c:if test="${r.status == 'ACTIVE'}"><c:set var="activeCount" value="${activeCount + 1}"/></c:if>
+        </c:forEach>
+        <div class="stat-num active">${activeCount}</div>
+        <div class="stat-label">Active Now</div>
+      </div>
+      <div class="stat-item">
+        <c:set var="returnedCount" value="0"/>
+        <c:forEach var="r" items="${rentals}">
+          <c:if test="${r.status != 'ACTIVE'}"><c:set var="returnedCount" value="${returnedCount + 1}"/></c:if>
+        </c:forEach>
+        <div class="stat-num done">${returnedCount}</div>
+        <div class="stat-label">Returned</div>
+      </div>
+    </div>
+  </div>
+</c:if>
+
+<!-- Band Label -->
+<div class="band-divider">
+  <span class="band-label">Rental History</span>
+  <div class="band-rule"></div>
 </div>
 
 <!-- Main Content -->
-<div class="main-content">
+<div class="main-wrap">
 
   <c:choose>
     <c:when test="${not empty rentals}">
-
-      <!-- Stats Summary -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-value">${rentals.size()}</div>
-          <div class="stat-label">Total Rentals</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" style="color:#ee0979;-webkit-text-fill-color:#ee0979;background:none;">
-            <c:set var="activeCount" value="0"/>
-            <c:forEach var="r" items="${rentals}">
-              <c:if test="${r.status == 'ACTIVE'}"><c:set var="activeCount" value="${activeCount + 1}"/></c:if>
-            </c:forEach>
-            ${activeCount}
-          </div>
-          <div class="stat-label">Active</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" style="color:#22c55e;-webkit-text-fill-color:#22c55e;background:none;">
-            <c:set var="returnedCount" value="0"/>
-            <c:forEach var="r" items="${rentals}">
-              <c:if test="${r.status != 'ACTIVE'}"><c:set var="returnedCount" value="${returnedCount + 1}"/></c:if>
-            </c:forEach>
-            ${returnedCount}
-          </div>
-          <div class="stat-label">Returned</div>
-        </div>
-      </div>
-
-      <!-- Rental Cards -->
       <div class="rentals-list">
         <c:forEach var="r" items="${rentals}">
           <div class="rental-card">
@@ -397,17 +625,19 @@
                      onerror="this.src='https://picsum.photos/seed/${r.movie.id}/56/80'">
               </c:when>
               <c:otherwise>
-                <div class="rental-thumb-placeholder">🎬</div>
+                <div class="rental-thumb-placeholder">
+                  <i class="fas fa-film thumb-icon"></i>
+                </div>
               </c:otherwise>
             </c:choose>
 
             <!-- Info -->
-            <div class="rental-main">
+            <div class="rental-info">
               <div class="rental-title">${r.movie.title}</div>
-              <div class="rental-sub">
-                <span>${r.movie.genre}</span>
-                <span class="dot">·</span>
-                <span>${r.movie.quality}</span>
+              <div class="rental-meta">
+                <span class="meta-pill">${r.movie.genre}</span>
+                <span class="meta-sep">&#183;</span>
+                <span class="meta-pill">${r.movie.quality}</span>
               </div>
               <div class="rental-dates">
                 <div class="date-item">
@@ -427,19 +657,29 @@
               </div>
             </div>
 
-            <!-- Status + Fee -->
-            <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+            <!-- Status -->
+            <div class="status-col">
               <c:choose>
                 <c:when test="${r.status == 'ACTIVE'}">
-                  <span class="status-badge status-active">● ACTIVE</span>
+                  <span class="status-badge status-active">
+                    <span class="status-dot"></span> Active
+                  </span>
                 </c:when>
                 <c:otherwise>
-                  <span class="status-badge status-returned">✓ RETURNED</span>
+                  <span class="status-badge status-returned">
+                    <span class="status-dot"></span> Returned
+                  </span>
                 </c:otherwise>
               </c:choose>
+            </div>
+
+            <!-- Late Fee -->
+            <div class="fee-col">
               <c:choose>
                 <c:when test="${r.lateFee > 0}">
-                  <span class="late-fee"><i class="fas fa-triangle-exclamation"></i> Rs ${r.lateFee}</span>
+                  <span class="late-fee">
+                    <i class="fas fa-triangle-exclamation" style="font-size:0.65rem;"></i> LKR ${r.lateFee}
+                  </span>
                 </c:when>
                 <c:otherwise>
                   <span class="no-fee">No late fee</span>
@@ -447,26 +687,28 @@
               </c:choose>
             </div>
 
-            <!-- Actions -->
-            <div class="rental-actions">
+            <!-- Watch -->
+            <div class="action-col">
               <a class="btn-watch" href="/watch/${r.movie.id}">
-                <i class="fas fa-play"></i> Watch
+                <i class="fas fa-play" style="font-size:0.65rem;"></i> Watch
               </a>
             </div>
 
           </div>
         </c:forEach>
       </div>
-
     </c:when>
+
     <c:otherwise>
       <!-- Empty State -->
       <div class="empty-state">
-        <div class="empty-icon">📦</div>
-        <h4>No rentals yet</h4>
-        <p>You haven't rented any movies. Start browsing to find something great!</p>
+        <div class="empty-frame">
+          <i class="fas fa-film" style="font-size:1.2rem;"></i>
+        </div>
+        <div class="empty-title">No Rentals Yet</div>
+        <p class="empty-sub">You have not rented any titles. Start browsing to find something great.</p>
         <a href="/home" class="btn-browse">
-          <i class="fas fa-film"></i> Browse Movies
+          <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i> Browse Films
         </a>
       </div>
     </c:otherwise>
