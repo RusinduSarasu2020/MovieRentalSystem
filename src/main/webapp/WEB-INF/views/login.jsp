@@ -1,516 +1,727 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — CineRent</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #0a0a0f;
+      --surface:   #101018;
+      --panel:     #13131e;
+      --border:    rgba(255,255,255,0.07);
+      --muted:     #4a4a6a;
+      --soft:      #8888aa;
+      --light:     #d8d8ee;
+      --white:     #f5f5fa;
+      --gold:      #c9a84c;
+      --gold-glow: rgba(201,168,76,0.18);
+      --red:       #e8384f;
+      --red-dim:   rgba(232,56,79,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0f0c29;
-      color: #fff;
+      background: var(--ink);
+      color: var(--white);
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       overflow: hidden;
     }
 
-    /* Animated background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(ellipse at 20% 50%, rgba(238,9,121,0.15) 0%, transparent 50%),
-                  radial-gradient(ellipse at 80% 20%, rgba(255,106,0,0.12) 0%, transparent 50%),
-                  radial-gradient(ellipse at 50% 80%, rgba(26,23,64,0.8) 0%, transparent 60%);
-      animation: bgFloat 8s ease-in-out infinite alternate;
-      z-index: 0;
-    }
-
-    @keyframes bgFloat {
-      0%   { transform: translate(0, 0) rotate(0deg); }
-      100% { transform: translate(2%, 3%) rotate(1deg); }
-    }
-
-    .page-wrapper {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 60px;
-      padding: 20px;
-    }
-
-    /* Brand side */
-    .brand-side {
+    /* ── Film-strip left panel ── */
+    .cinema-panel {
       display: none;
-      flex-direction: column;
-      align-items: flex-start;
-      max-width: 340px;
+      position: relative;
+      width: 52%;
+      background: var(--surface);
+      overflow: hidden;
+      flex-shrink: 0;
     }
 
-    @media (min-width: 900px) {
-      .brand-side { display: flex; }
-    }
+    @media (min-width: 900px) { .cinema-panel { display: flex; flex-direction: column; } }
 
-    .brand-logo {
-      font-size: 2.8rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -1px;
-      margin-bottom: 12px;
-    }
-
-    .brand-logo span {
-      background: none;
-      -webkit-text-fill-color: #fff;
-    }
-
-    .brand-tagline {
-      font-size: 1.05rem;
-      color: #a89fc8;
-      line-height: 1.6;
-      margin-bottom: 28px;
-    }
-
-    .feature-list {
-      list-style: none;
+    /* Vertical film-strip gutters */
+    .strip {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 32px;
+      background: var(--ink);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      padding: 14px 0;
+      z-index: 3;
+    }
+    .strip.left  { left: 0; }
+    .strip.right { right: 0; }
+    .strip-hole {
+      width: 18px;
+      height: 12px;
+      background: var(--surface);
+      border-radius: 3px;
+      margin: 0 auto;
+      border: 1px solid rgba(255,255,255,0.06);
     }
 
-    .feature-list li {
+    /* Poster grid */
+    .poster-grid {
+      position: absolute;
+      inset: 0 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .poster-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .poster-col.down  { animation: scrollDown 28s linear infinite; }
+    .poster-col.up    { animation: scrollUp   32s linear infinite; }
+    .poster-col.down2 { animation: scrollDown 24s linear infinite; }
+
+    @keyframes scrollDown { from { transform: translateY(0); }    to { transform: translateY(-50%); } }
+    @keyframes scrollUp   { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+
+    .poster-item {
+      aspect-ratio: 2/3;
+      background: var(--panel);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .poster-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg,
+        hsl(var(--hue, 220), 40%, 12%) 0%,
+        hsl(var(--hue, 220), 60%, 20%) 50%,
+        hsl(var(--hue, 220), 30%, 10%) 100%
+      );
+    }
+
+    .poster-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+    }
+
+    /* Assign hues to poster items */
+    .poster-item:nth-child(1)  { --hue: 200; }
+    .poster-item:nth-child(2)  { --hue: 350; }
+    .poster-item:nth-child(3)  { --hue: 30;  }
+    .poster-item:nth-child(4)  { --hue: 260; }
+    .poster-item:nth-child(5)  { --hue: 140; }
+    .poster-item:nth-child(6)  { --hue: 10;  }
+    .poster-item:nth-child(7)  { --hue: 190; }
+    .poster-item:nth-child(8)  { --hue: 320; }
+    .poster-item:nth-child(9)  { --hue: 60;  }
+    .poster-item:nth-child(10) { --hue: 240; }
+    .poster-item:nth-child(11) { --hue: 170; }
+    .poster-item:nth-child(12) { --hue: 0;   }
+
+    /* Vignette + overlay on poster grid */
+    .grid-overlay {
+      position: absolute;
+      inset: 0 32px;
+      background:
+        radial-gradient(ellipse at center, transparent 20%, rgba(10,10,15,0.7) 100%),
+        linear-gradient(to right, rgba(10,10,15,0.6), transparent 30%, transparent 70%, rgba(10,10,15,0.6));
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Brand block over the panel */
+    .panel-brand {
+      position: relative;
+      z-index: 4;
+      margin: auto 52px;
+      padding: 0;
+    }
+
+    .panel-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+    .panel-eyebrow::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.6;
+    }
+
+    .panel-wordmark {
+      font-family: 'Playfair Display', serif;
+      font-size: 4.2rem;
+      font-weight: 900;
+      line-height: 0.92;
+      color: var(--white);
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+    }
+
+    .panel-wordmark em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .panel-desc {
       font-size: 0.9rem;
-      color: #c4b8e0;
+      font-weight: 300;
+      color: var(--soft);
+      line-height: 1.75;
+      max-width: 300px;
+      margin-bottom: 36px;
     }
 
-    .feature-list li i {
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: 1rem;
-      width: 20px;
+    .panel-stats {
+      display: flex;
+      gap: 32px;
     }
 
-    /* Card */
-    .card {
-      background: rgba(26, 23, 64, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 24px;
-      padding: 40px 36px;
-      width: 400px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(238,9,121,0.08);
+    .stat-item { display: flex; flex-direction: column; gap: 3px; }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--white);
     }
 
-    .card-header-custom {
-      text-align: center;
-      margin-bottom: 30px;
+    .stat-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
-    .card-icon {
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg, #ff6a00, #ee0979);
-      border-radius: 16px;
+    /* Horizontal rule accent */
+    .rule-accent {
+      display: block;
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin-bottom: 32px;
+    }
+
+    /* ── Right / form side ── */
+    .form-side {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 16px;
-      font-size: 1.4rem;
-      box-shadow: 0 8px 24px rgba(238,9,121,0.35);
+      padding: 40px 24px;
+      position: relative;
+      background: var(--ink);
     }
 
-    .card-title {
-      font-size: 1.6rem;
+    /* Subtle grid texture */
+    .form-side::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .form-box {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* Mobile wordmark */
+    .mobile-brand {
+      display: block;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -1px;
+      margin-bottom: 32px;
+    }
+    .mobile-brand em { font-style: italic; color: var(--gold); }
+    @media (min-width: 900px) { .mobile-brand { display: none; } }
+
+    /* Section header */
+    .form-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.1rem;
       font-weight: 700;
-      margin-bottom: 4px;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 6px;
     }
 
-    .card-subtitle {
-      font-size: 0.85rem;
-      color: #8a7fb0;
+    .form-sub {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 36px;
     }
 
     /* Alert */
-    .alert-danger {
-      background: rgba(220, 53, 69, 0.15);
-      border: 1px solid rgba(220, 53, 69, 0.35);
-      border-radius: 10px;
-      color: #ff8a95;
-      font-size: 0.88rem;
-      padding: 10px 14px;
-      margin-bottom: 20px;
+    .alert {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
     }
-
-    /* Form */
-    .form-group {
-      margin-bottom: 18px;
+    .alert-error {
+      background: var(--red-dim);
+      border: 1px solid rgba(232,56,79,0.28);
+      color: #f08090;
     }
+    .alert-success {
+      background: rgba(60,200,120,0.1);
+      border: 1px solid rgba(60,200,120,0.25);
+      color: #6dffc0;
+    }
+    .alert i { font-size: 0.9rem; flex-shrink: 0; }
 
-    .form-label {
-      font-size: 0.82rem;
+    /* Field */
+    .field { margin-bottom: 20px; }
+
+    .field-label {
+      display: block;
+      font-size: 0.75rem;
       font-weight: 600;
-      color: #a89fc8;
-      margin-bottom: 7px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
     }
 
-    .input-wrapper {
-      position: relative;
-    }
+    .field-wrap { position: relative; }
 
-    .input-icon {
+    .field-icon {
       position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #5a5280;
-      font-size: 0.95rem;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.85rem;
       pointer-events: none;
       transition: color 0.2s;
+      z-index: 1;
     }
 
-    .form-control {
-      background: rgba(255,255,255,0.05);
-      border: 1.5px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      color: #fff;
-      padding: 12px 14px 12px 40px;
-      font-size: 0.95rem;
+    .field-input {
+      display: block;
       width: 100%;
-      transition: all 0.25s ease;
-    }
-
-    .form-control:focus {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem;
+      padding: 13px 14px 13px 44px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
       outline: none;
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(238,9,121,0.6);
-      box-shadow: 0 0 0 3px rgba(238,9,121,0.12);
-      color: #fff;
+      -webkit-appearance: none;
     }
 
-    .form-control:focus + .input-icon,
-    .input-wrapper:focus-within .input-icon {
-      color: #ee0979;
+    .field-input::placeholder { color: var(--muted); }
+
+    .field-input:focus {
+      border-color: rgba(201,168,76,0.5);
+      background: rgba(201,168,76,0.04);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
     }
 
-    .form-control::placeholder { color: #5a5280; }
+    .field-wrap:focus-within .field-icon { color: var(--gold); }
 
-    /* Password toggle */
-    .toggle-pw {
+    .pw-toggle {
       position: absolute;
       right: 14px;
       top: 50%;
       transform: translateY(-50%);
-      color: #5a5280;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: color 0.2s;
       background: none;
       border: none;
-      padding: 0;
-    }
-
-    .toggle-pw:hover { color: #ee0979; }
-
-    /* Remember + Forgot */
-    .form-extras {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .remember-me {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 0.85rem;
-      color: #8a7fb0;
+      padding: 4px;
+      color: var(--muted);
       cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .pw-toggle:hover { color: var(--gold); }
+
+    /* Extras row */
+    .extras {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      margin-top: -4px;
     }
 
-    .remember-me input[type="checkbox"] {
-      accent-color: #ee0979;
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--soft);
+      font-size: 0.84rem;
+    }
+
+    .remember input[type="checkbox"] {
       width: 15px;
       height: 15px;
+      accent-color: var(--gold);
       cursor: pointer;
     }
 
-    .forgot-link {
-      font-size: 0.85rem;
-      color: #ee0979;
+    .forgot {
+      font-size: 0.84rem;
+      color: var(--gold);
       text-decoration: none;
+      opacity: 0.85;
       transition: opacity 0.2s;
     }
+    .forgot:hover { opacity: 1; }
 
-    .forgot-link:hover { opacity: 0.75; color: #ee0979; }
-
-    /* Button */
-    .btn-login {
+    /* Submit button */
+    .btn-submit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       border: none;
-      border-radius: 12px;
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      color: #fff;
-      font-size: 1rem;
+      border-radius: 10px;
+      background: var(--gold);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem;
       font-weight: 700;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.04em;
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 6px 24px rgba(238,9,121,0.4);
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.3);
     }
 
-    .btn-login:hover {
+    .btn-submit:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 32px rgba(238,9,121,0.55);
+      box-shadow: 0 8px 28px rgba(201,168,76,0.45);
+      filter: brightness(1.06);
     }
 
-    .btn-login:active { transform: translateY(0); }
+    .btn-submit:active { transform: translateY(0); }
 
-    .btn-login .btn-text { position: relative; z-index: 1; }
-
-    .btn-login::after {
+    /* Shimmer */
+    .btn-submit::after {
       content: '';
       position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      transition: left 0.4s;
+      top: 0; left: -120%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: left 0.45s;
     }
+    .btn-submit:hover::after { left: 160%; }
 
-    .btn-login:hover::after { left: 100%; }
+    /* Spinner */
+    .btn-submit.loading .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(10,10,15,0.3);
+      border-top-color: var(--ink);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .spinner { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Divider */
     .divider {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin: 22px 0;
-      color: #3d3660;
-      font-size: 0.8rem;
+      gap: 14px;
+      margin: 26px 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-
     .divider::before, .divider::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: rgba(255,255,255,0.07);
+      background: var(--border);
     }
 
-    /* Footer links */
-    .card-footer-links {
+    /* Footer */
+    .form-footer {
       text-align: center;
-      font-size: 0.88rem;
-      color: #6e658f;
+      font-size: 0.86rem;
+      color: var(--muted);
     }
 
-    .card-footer-links a {
-      color: #c084fc;
+    .form-footer a {
+      color: var(--soft);
       text-decoration: none;
       font-weight: 600;
       transition: color 0.2s;
+      border-bottom: 1px solid rgba(136,136,170,0.25);
+      padding-bottom: 1px;
     }
+    .form-footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
 
-    .card-footer-links a:hover { color: #ee0979; }
-
-    .admin-link-wrap {
-      margin-top: 14px;
-    }
-
-    .btn-admin {
+    .admin-btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
+      margin-top: 18px;
       padding: 8px 20px;
-      border-radius: 20px;
-      border: 1.5px solid rgba(255,193,7,0.3);
-      color: #ffc107;
-      font-size: 0.82rem;
-      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      color: var(--soft);
+      font-size: 0.8rem;
+      font-weight: 500;
       text-decoration: none;
+      letter-spacing: 0.04em;
       transition: all 0.2s;
-      background: rgba(255,193,7,0.05);
+      background: rgba(255,255,255,0.03);
+    }
+    .admin-btn:hover {
+      border-color: rgba(255,255,255,0.22);
+      color: var(--white);
+      background: rgba(255,255,255,0.06);
+    }
+    .admin-btn i { font-size: 0.78rem; opacity: 0.7; }
+
+    /* Entrance animations */
+    .form-box > * {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+    .form-box > *:nth-child(1) { animation-delay: 0.05s; }
+    .form-box > *:nth-child(2) { animation-delay: 0.12s; }
+    .form-box > *:nth-child(3) { animation-delay: 0.18s; }
+    .form-box > *:nth-child(4) { animation-delay: 0.24s; }
+    .form-box > *:nth-child(5) { animation-delay: 0.30s; }
+    .form-box > *:nth-child(6) { animation-delay: 0.36s; }
+    .form-box > *:nth-child(7) { animation-delay: 0.42s; }
+    .form-box > *:nth-child(8) { animation-delay: 0.48s; }
+    .form-box > *:nth-child(9) { animation-delay: 0.54s; }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .btn-admin:hover {
-      background: rgba(255,193,7,0.12);
-      border-color: rgba(255,193,7,0.6);
-      color: #ffc107;
-      transform: translateY(-1px);
+    .panel-brand {
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.1s forwards;
     }
-
-    /* Loading spinner on submit */
-    .btn-login.loading .btn-text::after {
-      content: '';
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin-left: 10px;
-      vertical-align: middle;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-<div class="page-wrapper">
+  <!-- Left cinema panel -->
+  <div class="cinema-panel">
 
-  <!-- Brand Side (visible on wide screens) -->
-  <div class="brand-side">
-    <div class="brand-logo">Cine<span>Rent</span></div>
-    <p class="brand-tagline">
-      Stream and rent the latest movies from the comfort of your home.
-      HD quality, instant access, no waiting.
-    </p>
-    <ul class="feature-list">
-      <li><i class="fas fa-film"></i> Thousands of movies in HD & 4K</li>
-      <li><i class="fas fa-bolt"></i> Instant streaming, no buffering</li>
-      <li><i class="fas fa-tag"></i> Affordable rental prices</li>
-      <li><i class="fas fa-shield-halved"></i> Secure payments</li>
-      <li><i class="fas fa-star"></i> Ratings & reviews by community</li>
-    </ul>
-  </div>
-
-  <!-- Login Card -->
-  <div class="card">
-
-    <div class="card-header-custom">
-      <div class="card-icon">
-        <i class="fas fa-clapperboard"></i>
-      </div>
-      <div class="card-title">Welcome Back</div>
-      <div class="card-subtitle">Sign in to your CineRent account</div>
+    <!-- Film strip holes -->
+    <div class="strip left">
+      <% for (int i = 0; i < 30; i++) { %><div class="strip-hole"></div><% } %>
+    </div>
+    <div class="strip right">
+      <% for (int i = 0; i < 30; i++) { %><div class="strip-hole"></div><% } %>
     </div>
 
-    <!-- Error Message -->
-    <% if (request.getAttribute("error") != null) { %>
-      <div class="alert-danger">
-        <i class="fas fa-circle-exclamation"></i>
-        <%= request.getAttribute("error") %>
+    <!-- Scrolling poster grid -->
+    <div class="poster-grid">
+      <div class="poster-col down">
+        <% for (int i = 0; i < 24; i++) { %><div class="poster-item"></div><% } %>
       </div>
-    <% } %>
-
-    <!-- Success Message -->
-    <% if (request.getAttribute("success") != null) { %>
-      <div class="alert-danger" style="background:rgba(25,135,84,0.15);border-color:rgba(25,135,84,0.35);color:#6dffb3;">
-        <i class="fas fa-circle-check"></i>
-        <%= request.getAttribute("success") %>
+      <div class="poster-col up">
+        <% for (int i = 0; i < 24; i++) { %><div class="poster-item"></div><% } %>
       </div>
-    <% } %>
-
-    <form method="post" action="/login" id="loginForm">
-
-      <!-- Username -->
-      <div class="form-group">
-        <label class="form-label">Username</label>
-        <div class="input-wrapper">
-          <input class="form-control"
-                 type="text"
-                 name="username"
-                 placeholder="Enter your username"
-                 autocomplete="username"
-                 required>
-          <i class="fas fa-user input-icon"></i>
-        </div>
+      <div class="poster-col down2">
+        <% for (int i = 0; i < 24; i++) { %><div class="poster-item"></div><% } %>
       </div>
-
-      <!-- Password -->
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <div class="input-wrapper">
-          <input class="form-control"
-                 type="password"
-                 name="password"
-                 id="passwordField"
-                 placeholder="Enter your password"
-                 autocomplete="current-password"
-                 required>
-          <i class="fas fa-lock input-icon"></i>
-          <button type="button" class="toggle-pw" onclick="togglePassword()" id="toggleBtn">
-            <i class="fas fa-eye" id="eyeIcon"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Remember + Forgot -->
-      <div class="form-extras">
-        <label class="remember-me">
-          <input type="checkbox" name="remember"> Remember me
-        </label>
-        <a href="/forgot-password" class="forgot-link">Forgot password?</a>
-      </div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn-login" id="loginBtn">
-        <span class="btn-text">Sign In &nbsp;<i class="fas fa-arrow-right"></i></span>
-      </button>
-
-    </form>
-
-    <div class="divider">or</div>
-
-    <!-- Sign up -->
-    <div class="card-footer-links">
-      Don't have an account? <a href="/signup">Create one free</a>
     </div>
 
-    <!-- Admin -->
-    <div class="admin-link-wrap text-center">
-      <a href="/admin/login" class="btn-admin">
-        <i class="fas fa-shield-halved"></i> Admin Portal
-      </a>
+    <div class="grid-overlay"></div>
+
+    <!-- Brand block -->
+    <div class="panel-brand">
+      <div class="panel-eyebrow">Now streaming</div>
+      <div class="panel-wordmark">Cine<em>Rent</em></div>
+      <span class="rule-accent"></span>
+      <p class="panel-desc">
+        HD and 4K rentals delivered instantly. No subscriptions, no waiting — just great cinema on demand.
+      </p>
+      <div class="panel-stats">
+        <div class="stat-item">
+          <span class="stat-num">12K+</span>
+          <span class="stat-label">Titles</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">4K</span>
+          <span class="stat-label">Ultra HD</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">24h</span>
+          <span class="stat-label">Rental window</span>
+        </div>
+      </div>
     </div>
 
   </div>
-</div>
+
+  <!-- Right form side -->
+  <div class="form-side">
+    <div class="form-box">
+
+      <div class="mobile-brand">Cine<em>Rent</em></div>
+
+      <div class="form-heading">Welcome back.</div>
+      <div class="form-sub">Sign in to your account to continue</div>
+
+      <!-- Error / success messages -->
+      <% if (request.getAttribute("error") != null) { %>
+        <div class="alert alert-error">
+          <i class="fas fa-circle-exclamation"></i>
+          <%= request.getAttribute("error") %>
+        </div>
+      <% } %>
+
+      <% if (request.getAttribute("success") != null) { %>
+        <div class="alert alert-success">
+          <i class="fas fa-circle-check"></i>
+          <%= request.getAttribute("success") %>
+        </div>
+      <% } %>
+
+      <form method="post" action="/login" id="loginForm">
+
+        <!-- Username -->
+        <div class="field">
+          <label class="field-label" for="username">Username</label>
+          <div class="field-wrap">
+            <span class="field-icon"><i class="fas fa-user"></i></span>
+            <input
+              class="field-input"
+              type="text"
+              id="username"
+              name="username"
+              placeholder="your username"
+              autocomplete="username"
+              required>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label class="field-label" for="passwordField">Password</label>
+          <div class="field-wrap">
+            <span class="field-icon"><i class="fas fa-lock"></i></span>
+            <input
+              class="field-input"
+              type="password"
+              id="passwordField"
+              name="password"
+              placeholder="your password"
+              autocomplete="current-password"
+              required>
+            <button type="button" class="pw-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+              <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Extras -->
+        <div class="extras">
+          <label class="remember">
+            <input type="checkbox" name="remember"> Remember me
+          </label>
+          <a href="/forgot-password" class="forgot">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-submit" id="loginBtn">
+          <span class="btn-text">Sign In</span>
+          <i class="fas fa-arrow-right"></i>
+          <span class="spinner"></span>
+        </button>
+
+      </form>
+
+      <div class="divider">or</div>
+
+      <div class="form-footer">
+        No account yet? <a href="/signup">Create one free</a>
+        <br>
+        <a href="/admin/login" class="admin-btn">
+          <i class="fas fa-shield-halved"></i> Admin Portal
+        </a>
+      </div>
+
+    </div>
+  </div>
 
 <script>
-  // Toggle password visibility
   function togglePassword() {
     const field = document.getElementById('passwordField');
     const icon  = document.getElementById('eyeIcon');
-    if (field.type === 'password') {
-      field.type = 'text';
-      icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-      field.type = 'password';
-      icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
+    const isHidden = field.type === 'password';
+    field.type = isHidden ? 'text' : 'password';
+    icon.classList.toggle('fa-eye',       !isHidden);
+    icon.classList.toggle('fa-eye-slash',  isHidden);
   }
 
-  // Loading state on submit
-  document.getElementById('loginForm').addEventListener('submit', function() {
+  document.getElementById('loginForm').addEventListener('submit', function () {
     const btn = document.getElementById('loginBtn');
     btn.classList.add('loading');
     btn.disabled = true;
+    btn.querySelector('.btn-text').textContent = 'Signing in';
+    btn.querySelector('.fa-arrow-right').style.display = 'none';
   });
 </script>
 

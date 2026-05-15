@@ -1,5 +1,6 @@
 package com.cinerent.controller;
 
+import com.cinerent.model.Movie;
 import com.cinerent.model.User;
 import com.cinerent.service.MovieService;
 import jakarta.servlet.http.HttpSession;
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Collections;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -22,6 +26,16 @@ public class UserController {
                        HttpSession session, Model model) {
         if (session.getAttribute("user") == null) return "redirect:/login";
         model.addAttribute("movies", movieService.filter(q, genre, quality, minRating, maxDuration));
+        model.addAttribute("user", session.getAttribute("user"));
+        return "home";
+    }
+
+    @GetMapping("/new-releases")
+    public String newReleases(HttpSession session, Model model) {
+        if (session.getAttribute("user") == null) return "redirect:/login";
+        List<Movie> movies = movieService.all();
+        Collections.reverse(movies);
+        model.addAttribute("movies", movies);
         model.addAttribute("user", session.getAttribute("user"));
         return "home";
     }

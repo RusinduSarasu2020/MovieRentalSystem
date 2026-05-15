@@ -1,584 +1,981 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>CineRent — Movie Rental</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineRent — Premium Movie Rentals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:   #0a0a0a;
+      --dark:    #111111;
+      --card:    #161616;
+      --border:  #242424;
+      --border2: #2e2e2e;
+      --muted:   #555555;
+      --soft:    #888888;
+      --light:   #c8c8c8;
+      --white:   #f0ede8;
+      --gold:    #c9a84c;
+      --gold2:   #e8c870;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-ui:      'Syne', sans-serif;
+      --font-mono:    'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
-      background: #0f0c29;
-      color: #fff;
-      min-height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-ui);
+      font-size: 16px;
+      line-height: 1.6;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Animated BG ── */
-    .bg-layer {
+    body::after {
+      content: '';
       position: fixed;
       inset: 0;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse at 15% 40%, rgba(238,9,121,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 15%, rgba(255,106,0,0.14) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 90%, rgba(48,43,99,0.6) 0%, transparent 60%),
-        linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-      animation: bgPulse 10s ease-in-out infinite alternate;
-    }
-    @keyframes bgPulse {
-      0%   { opacity: 1; }
-      100% { opacity: 0.85; }
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 200px;
     }
 
-    /* Floating particles */
-    .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(238,9,121,0.15);
-      animation: floatUp linear infinite;
-    }
-    @keyframes floatUp {
-      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-      10%  { opacity: 1; }
-      90%  { opacity: 0.4; }
-      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-    }
+    a { text-decoration: none; color: inherit; }
 
-    /* ── Navbar ── */
+    /* ─── NAVBAR ─── */
     .navbar {
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
-      padding: 16px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(15,12,41,0.7);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 48px;
+      height: 64px;
+      background: rgba(10,10,10,0.94);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
     }
 
     .nav-brand {
-      font-size: 1.6rem;
-      font-weight: 800;
-      text-decoration: none;
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .nav-links { display: flex; gap: 10px; align-items: center; }
-
-    .nav-btn {
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 0.88rem;
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.55rem;
       font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s;
+      color: var(--white);
+      letter-spacing: 0.04em;
     }
 
-    .nav-btn-outline {
-      border: 1.5px solid rgba(255,255,255,0.2);
-      color: #c4b8e0;
+    .brand-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .nav-center {
+      display: flex;
+      gap: 36px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .nav-center a { transition: color 0.2s; }
+    .nav-center a:hover { color: var(--gold); }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    .btn-nav-ghost {
+      padding: 8px 22px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--soft);
+      border: 1px solid var(--border2);
       background: transparent;
+      transition: all 0.2s;
+      display: inline-block;
     }
-    .nav-btn-outline:hover {
-      border-color: rgba(238,9,121,0.5);
-      color: #fff;
-      background: rgba(238,9,121,0.08);
-    }
+    .btn-nav-ghost:hover { color: var(--white); border-color: var(--soft); }
 
-    .nav-btn-fill {
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      color: #fff;
-      border: none;
-      box-shadow: 0 4px 16px rgba(238,9,121,0.35);
+    .btn-nav-fill {
+      padding: 8px 22px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: var(--gold);
+      border: 1px solid var(--gold);
+      transition: all 0.2s;
+      display: inline-block;
     }
-    .nav-btn-fill:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(238,9,121,0.5);
-      color: #fff;
-    }
+    .btn-nav-fill:hover { background: var(--gold2); border-color: var(--gold2); }
 
-    /* ── Hero ── */
+    /* ─── HERO ─── */
     .hero {
-      position: relative;
-      z-index: 1;
       min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 64px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-left {
+      position: relative;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      text-align: center;
-      padding: 120px 20px 80px;
+      padding: 80px 64px 80px 80px;
+      border-right: 1px solid var(--border);
     }
 
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(238,9,121,0.12);
-      border: 1px solid rgba(238,9,121,0.25);
-      border-radius: 20px;
-      padding: 6px 16px;
-      font-size: 0.82rem;
-      color: #ff8ab5;
-      margin-bottom: 28px;
-      animation: fadeDown 0.6s ease both;
-    }
-
-    .hero-badge i { color: #ee0979; }
-
-    .hero h1 {
-      font-size: clamp(3rem, 8vw, 5.5rem);
-      font-weight: 900;
-      line-height: 1.05;
-      margin-bottom: 20px;
-      animation: fadeDown 0.7s ease 0.1s both;
-    }
-
-    .hero h1 .gradient-text {
-      background: linear-gradient(90deg, #ff6a00, #ee0979, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p.lead {
-      font-size: 1.15rem;
-      color: #a89fc8;
-      max-width: 520px;
-      line-height: 1.7;
-      margin-bottom: 38px;
-      animation: fadeDown 0.7s ease 0.2s both;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 60px;
-      animation: fadeDown 0.7s ease 0.3s both;
-    }
-
-    .btn-glow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      border: none;
-      padding: 14px 36px;
-      font-weight: 700;
-      font-size: 1rem;
-      border-radius: 30px;
-      color: #fff;
-      text-decoration: none;
-      box-shadow: 0 8px 28px rgba(238,9,121,0.4);
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn-glow:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 40px rgba(238,9,121,0.55);
-      color: #fff;
-    }
-
-    .btn-glow::after {
+    .hero-left::before {
       content: '';
       position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-      transition: left 0.5s;
+      left: 40px; top: 20%; bottom: 20%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      opacity: 0.35;
     }
-    .btn-glow:hover::after { left: 100%; }
 
-    .btn-ghost {
-      display: inline-flex;
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+      display: flex;
       align-items: center;
+      gap: 14px;
+      animation: fadeUp 0.8s ease 0.1s both;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px; height: 1px;
+      background: var(--gold);
+      opacity: 0.6;
+    }
+
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(3.4rem, 5.5vw, 5.6rem);
+      font-weight: 300;
+      line-height: 1.0;
+      letter-spacing: -0.5px;
+      color: var(--white);
+      margin-bottom: 28px;
+      animation: fadeUp 0.8s ease 0.2s both;
+    }
+
+    .hero-headline strong { font-weight: 600; display: block; }
+    .hero-headline em { font-style: italic; color: var(--gold); }
+
+    .hero-sub {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--soft);
+      line-height: 1.75;
+      max-width: 400px;
+      margin-bottom: 48px;
+      animation: fadeUp 0.8s ease 0.3s both;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      animation: fadeUp 0.8s ease 0.4s both;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 14px 38px;
+      background: var(--gold);
+      color: var(--black);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid var(--gold);
+      transition: all 0.22s;
+    }
+    .btn-primary:hover { background: var(--gold2); border-color: var(--gold2); transform: translateY(-2px); }
+
+    .btn-secondary {
+      display: inline-block;
+      padding: 14px 34px;
+      background: transparent;
+      color: var(--light);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1px solid var(--border2);
+      transition: all 0.22s;
+    }
+    .btn-secondary:hover { border-color: var(--soft); color: var(--white); }
+
+    /* ─── HERO RIGHT ─── */
+    .hero-right {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 60px 60px 60px 56px;
+      background: radial-gradient(ellipse at 75% 20%, rgba(201,168,76,0.05) 0%, transparent 55%), var(--dark);
+      overflow: hidden;
+    }
+
+    /* Reel circle decoration */
+    .reel-deco {
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.07);
+      pointer-events: none;
+      animation: spinSlow 50s linear infinite;
+    }
+    .reel-deco::before {
+      content: '';
+      position: absolute;
+      inset: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.05);
+    }
+    .reel-deco::after {
+      content: '';
+      position: absolute;
+      inset: 60px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.03);
+    }
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+
+    /* Film strip right edge */
+    .filmstrip {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 26px;
+      background: var(--border);
+      display: flex;
+      flex-direction: column;
       gap: 8px;
-      padding: 13px 34px;
-      font-weight: 700;
-      font-size: 1rem;
-      border-radius: 30px;
-      color: #c4b8e0;
-      text-decoration: none;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(6px);
+      padding: 10px 4px;
+      overflow: hidden;
+    }
+    .filmstrip-hole {
+      width: 18px; height: 11px;
+      background: var(--black);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 44px;
+      animation: fadeUp 0.8s ease 0.5s both;
+    }
+
+    .stat-cell {
+      background: var(--card);
+      padding: 26px 26px;
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: -1px;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .genre-headline {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      animation: fadeUp 0.8s ease 0.6s both;
+    }
+
+    .genre-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      animation: fadeUp 0.8s ease 0.7s both;
+    }
+
+    .genre-tag {
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.07em;
+      color: var(--soft);
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,0.02);
       transition: all 0.2s;
     }
-    .btn-ghost:hover {
-      color: #fff;
-      border-color: rgba(238,9,121,0.45);
-      background: rgba(238,9,121,0.08);
-      transform: translateY(-2px);
-    }
+    .genre-tag:hover { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.05); }
 
-    /* Stats strip */
-    .stats-strip {
+    /* ─── MARQUEE ─── */
+    .divider-strip {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .marquee-track {
       display: flex;
-      gap: 40px;
-      flex-wrap: wrap;
-      justify-content: center;
-      animation: fadeDown 0.7s ease 0.4s both;
+      animation: marquee 26s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-item {
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 14px 30px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .marquee-item span { color: var(--gold); margin-right: 8px; }
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
 
-    .stat-item { text-align: center; }
-    .stat-num {
-      font-size: 1.7rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, #ff6a00, #ee0979);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .stat-label { font-size: 0.78rem; color: #6e658f; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* ── Features ── */
+    /* ─── FEATURES ─── */
     .section {
-      position: relative;
-      z-index: 1;
-      padding: 80px 20px;
+      padding: 100px 80px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 56px;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 22px; height: 1px;
+      background: var(--gold);
     }
 
     .section-title {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 10px;
+      font-family: var(--font-display);
+      font-size: 2.9rem;
+      font-weight: 300;
+      line-height: 1.1;
     }
+    .section-title em { font-style: italic; color: var(--gold); }
 
-    .section-sub {
-      text-align: center;
-      color: #6e658f;
-      font-size: 0.95rem;
-      margin-bottom: 50px;
+    .section-count {
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      padding-bottom: 4px;
     }
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
-      max-width: 1000px;
-      margin: 0 auto;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
     }
 
     .feature-card {
-      background: rgba(26,23,64,0.7);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 20px;
-      padding: 30px 24px;
-      text-align: center;
-      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 20px 50px rgba(238,9,121,0.15);
-      border-color: rgba(238,9,121,0.25);
-    }
-
-    .feature-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #ff6a00, #ee0979);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      margin: 0 auto 16px;
-      box-shadow: 0 6px 20px rgba(238,9,121,0.3);
-    }
-
-    .feature-card h5 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .feature-card p {
-      font-size: 0.85rem;
-      color: #7a6fa0;
-      line-height: 1.6;
-    }
-
-    /* ── Genre Chips ── */
-    .genres-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .genre-chip {
-      padding: 8px 20px;
-      border-radius: 20px;
-      border: 1.5px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.04);
-      color: #a89fc8;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .genre-chip:hover {
-      border-color: rgba(238,9,121,0.5);
-      background: rgba(238,9,121,0.1);
-      color: #fff;
-      transform: translateY(-2px);
-    }
-
-    /* ── CTA Banner ── */
-    .cta-banner {
+      background: var(--card);
+      padding: 44px 38px;
+      transition: background 0.25s;
       position: relative;
-      z-index: 1;
-      margin: 0 20px 80px;
-      border-radius: 28px;
-      padding: 60px 40px;
-      text-align: center;
-      background: linear-gradient(135deg, rgba(255,106,0,0.18), rgba(238,9,121,0.18));
-      border: 1px solid rgba(238,9,121,0.2);
-      backdrop-filter: blur(10px);
       overflow: hidden;
     }
 
-    .cta-banner::before {
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.35s ease;
+    }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-card:hover { background: #191919; }
+
+    .feature-num {
+      font-family: var(--font-display);
+      font-size: 3.2rem;
+      font-weight: 600;
+      color: rgba(201,168,76,0.1);
+      line-height: 1;
+      margin-bottom: 22px;
+      letter-spacing: -2px;
+    }
+
+    .feature-rule {
+      width: 32px; height: 1px;
+      background: var(--gold);
+      margin-bottom: 18px;
+      opacity: 0.45;
+    }
+
+    .feature-title {
+      font-size: 1.0rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 10px;
+      letter-spacing: 0.01em;
+    }
+
+    .feature-desc {
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.78;
+      font-weight: 300;
+    }
+
+    /* ─── PRICING ─── */
+    .pricing-band {
+      border-top: 1px solid var(--border);
+      background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.04) 0%, transparent 60%), var(--dark);
+      padding: 100px 80px;
+    }
+
+    .pricing-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .pricing-copy p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.8;
+      font-weight: 300;
+      margin: 20px 0 36px;
+    }
+
+    .price-card {
+      border: 1px solid var(--border2);
+      background: var(--card);
+      padding: 40px;
+      position: relative;
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -1px; right: 28px;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: var(--gold);
+      padding: 4px 12px;
+    }
+
+    .price-header {
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-amount {
+      font-family: var(--font-display);
+      font-size: 3.4rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .price-unit {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 28px;
+    }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+
+    .price-features li {
+      font-size: 0.875rem;
+      color: var(--light);
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 300;
+    }
+    .price-features li::before {
+      content: '';
+      display: block;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .btn-block {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      border-top: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      padding: 110px 80px;
+      text-align: center;
+    }
+    .cta-section::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(238,9,121,0.2) 0%, transparent 70%);
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-section::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.25;
     }
 
-    .cta-banner h2 {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin-bottom: 12px;
-      position: relative;
+    .cta-label {
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 22px;
     }
 
-    .cta-banner p {
-      color: #a89fc8;
-      margin-bottom: 30px;
-      position: relative;
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 5vw, 5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+    .cta-title em { font-style: italic; color: var(--gold); }
+
+    .cta-sub {
+      font-size: 0.93rem;
+      color: var(--muted);
+      max-width: 400px;
+      margin: 0 auto 44px;
+      line-height: 1.8;
+      font-weight: 300;
     }
 
-    /* ── Footer ── */
+    .cta-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* ─── FOOTER ─── */
     footer {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 30px 20px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      color: #3d3660;
-      font-size: 0.82rem;
-    }
-
-    footer a {
-      color: #5a5280;
-      text-decoration: none;
-      margin: 0 8px;
-      transition: color 0.2s;
-    }
-    footer a:hover { color: #ee0979; }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Admin link */
-    .admin-tiny {
-      position: fixed;
-      bottom: 20px;
-      right: 24px;
-      z-index: 100;
+      border-top: 1px solid var(--border);
+      padding: 32px 80px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: rgba(255,193,7,0.1);
-      border: 1px solid rgba(255,193,7,0.25);
-      color: #ffc107;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-decoration: none;
+      justify-content: space-between;
+    }
+
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 26px;
+    }
+    .footer-links a {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-copy {
+      font-family: var(--font-mono);
+      font-size: 0.63rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* Admin */
+    .admin-link {
+      position: fixed;
+      bottom: 22px; right: 26px;
+      z-index: 100;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border2);
+      padding: 7px 16px;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(10px);
       transition: all 0.2s;
     }
-    .admin-tiny:hover {
-      background: rgba(255,193,7,0.18);
-      color: #ffc107;
+    .admin-link:hover { color: var(--gold); border-color: var(--gold); }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(26px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-left { padding: 60px 36px; }
+      .hero-left::before { display: none; }
+      .hero-right { padding: 48px 36px; border-top: 1px solid var(--border); }
+      .navbar { padding: 0 24px; }
+      .nav-center { display: none; }
+      .section { padding: 70px 32px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-inner { grid-template-columns: 1fr; gap: 48px; }
+      .pricing-band, .cta-section { padding: 70px 32px; }
+      footer { flex-direction: column; gap: 18px; padding: 28px 32px; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-<div class="bg-layer"></div>
-
-<!-- Particles -->
-<div class="particles" id="particles"></div>
-
-<!-- Navbar -->
+<!-- NAVBAR -->
 <nav class="navbar">
-  <a href="/" class="nav-brand">🎬 CineRent</a>
-  <div class="nav-links">
-    <a href="/login"  class="nav-btn nav-btn-outline">Login</a>
-    <a href="/signup" class="nav-btn nav-btn-fill">Sign Up Free</a>
+  <a href="/" class="nav-brand">
+    <span class="brand-name">CineRent</span>
+    <span class="brand-dot"></span>
+  </a>
+
+  <div class="nav-center">
+    <a href="/login">Browse</a>
+    <a href="/login">New Releases</a>
+    <a href="/login">Top Rated</a>
+    <a href="/login">Genres</a>
+  </div>
+
+  <div class="nav-actions">
+    <a href="/login" class="btn-nav-ghost">Sign In</a>
+    <a href="/signup" class="btn-nav-fill">Get Started</a>
   </div>
 </nav>
 
-<!-- Hero -->
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">
-    <i class="fas fa-circle-play"></i> Now streaming in 4K
-  </div>
-  <h1>
-    The Future of<br>
-    <span class="gradient-text">Movie Rentals</span>
-  </h1>
-  <p class="lead">
-    Rent blockbusters, stream instantly, and enjoy HD quality movies
-    from the comfort of your home — anytime, anywhere.
-  </p>
-  <div class="hero-actions">
-    <a href="/signup" class="btn-glow">
-      <i class="fas fa-rocket"></i> Get Started Free
-    </a>
-    <a href="/login" class="btn-ghost">
-      <i class="fas fa-sign-in-alt"></i> Sign In
-    </a>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">Premium Cinema Experience</div>
+
+    <h1 class="hero-headline">
+      <strong>Rent. Watch.</strong>
+      <em>Fall in Love</em><br>
+      with Film.
+    </h1>
+
+    <p class="hero-sub">
+      A curated library of over ten thousand titles — from timeless
+      classics to the latest releases — delivered instantly to your
+      screen in stunning 4K.
+    </p>
+
+    <div class="hero-cta">
+      <a href="/signup" class="btn-primary">Start Watching</a>
+      <a href="/login" class="btn-secondary">Sign In</a>
+    </div>
   </div>
 
-  <div class="stats-strip">
-    <div class="stat-item">
-      <div class="stat-num">10K+</div>
-      <div class="stat-label">Movies</div>
+  <div class="hero-right">
+    <div class="reel-deco"></div>
+
+    <div class="filmstrip">
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
+      <div class="filmstrip-hole"></div><div class="filmstrip-hole"></div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num">4K</div>
-      <div class="stat-label">Ultra HD</div>
+
+    <div class="stats-grid">
+      <div class="stat-cell">
+        <div class="stat-num">10K+</div>
+        <div class="stat-label">Titles Available</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">4K</div>
+        <div class="stat-label">Ultra HD Quality</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">500K</div>
+        <div class="stat-label">Active Members</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">Rs 250</div>
+        <div class="stat-label">Starting Price</div>
+      </div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num">500K+</div>
-      <div class="stat-label">Happy Users</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">Rs 250</div>
-      <div class="stat-label">Starting Price</div>
+
+    <div class="genre-headline">Browse by genre</div>
+    <div class="genre-row">
+      <a href="/login" class="genre-tag">Sci-Fi</a>
+      <a href="/login" class="genre-tag">Horror</a>
+      <a href="/login" class="genre-tag">Drama</a>
+      <a href="/login" class="genre-tag">Comedy</a>
+      <a href="/login" class="genre-tag">Thriller</a>
+      <a href="/login" class="genre-tag">Adventure</a>
+      <a href="/login" class="genre-tag">Crime</a>
+      <a href="/login" class="genre-tag">Documentary</a>
+      <a href="/login" class="genre-tag">Psychological</a>
+      <a href="/login" class="genre-tag">Family</a>
     </div>
   </div>
+
 </section>
 
-<!-- Features -->
-<section class="section">
-  <div class="section-title">Why Choose CineRent?</div>
-  <div class="section-sub">Everything you need for the perfect movie night</div>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-film"></i></div>
-      <h5>Massive Library</h5>
-      <p>Thousands of movies across every genre — updated weekly.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-      <h5>Instant Access</h5>
-      <p>Rent and start watching in seconds. No waiting, no downloads.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-tv"></i></div>
-      <h5>HD & 4K Quality</h5>
-      <p>Crystal-clear picture quality from 480p up to stunning 4K.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
-      <h5>Secure Payments</h5>
-      <p>Your transactions are fully encrypted and 100% safe.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-star"></i></div>
-      <h5>Ratings & Reviews</h5>
-      <p>Read honest reviews and ratings from our movie community.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-tag"></i></div>
-      <h5>Best Prices</h5>
-      <p>Affordable rentals starting at just Rs 99. No subscription needed.</p>
-    </div>
+<!-- MARQUEE -->
+<div class="divider-strip">
+  <div class="marquee-track">
+    <span class="marquee-item"><span>/</span>Instant Streaming</span>
+    <span class="marquee-item"><span>/</span>HD &amp; 4K Quality</span>
+    <span class="marquee-item"><span>/</span>10,000+ Titles</span>
+    <span class="marquee-item"><span>/</span>No Subscription Required</span>
+    <span class="marquee-item"><span>/</span>Secure Payments</span>
+    <span class="marquee-item"><span>/</span>Rent in Seconds</span>
+    <span class="marquee-item"><span>/</span>New Releases Weekly</span>
+    <span class="marquee-item"><span>/</span>Starting Rs 250</span>
+    <span class="marquee-item"><span>/</span>Instant Streaming</span>
+    <span class="marquee-item"><span>/</span>HD &amp; 4K Quality</span>
+    <span class="marquee-item"><span>/</span>10,000+ Titles</span>
+    <span class="marquee-item"><span>/</span>No Subscription Required</span>
+    <span class="marquee-item"><span>/</span>Secure Payments</span>
+    <span class="marquee-item"><span>/</span>Rent in Seconds</span>
+    <span class="marquee-item"><span>/</span>New Releases Weekly</span>
+    <span class="marquee-item"><span>/</span>Starting Rs 250</span>
   </div>
-</section>
-
-<!-- Genres -->
-<section class="section" style="padding-top:0;">
-  <div class="section-title">Browse by Genre</div>
-  <div class="section-sub">What are you in the mood for?</div>
-  <div class="genres-wrap">
-    <a href="/login" class="genre-chip">🚀 Sci-Fi</a>
-    <a href="/login" class="genre-chip">😱 Horror</a>
-    <a href="/login" class="genre-chip">🎭 Drama</a>
-    <a href="/login" class="genre-chip">😂 Comedy</a>
-    <a href="/login" class="genre-chip">🎬 Thriller</a>
-    <a href="/login" class="genre-chip">🏄 Adventure</a>
-    <a href="/login" class="genre-chip">🔍 Crime</a>
-    <a href="/login" class="genre-chip">👨‍👩‍👧 Family</a>
-    <a href="/login" class="genre-chip">🧠 Psychological</a>
-    <a href="/login" class="genre-chip">🎥 Documentary</a>
-  </div>
-</section>
-
-<!-- CTA Banner -->
-<div class="cta-banner">
-  <h2>Ready to Watch?</h2>
-  <p>Join hundreds of thousands of movie lovers on CineRent today.</p>
-  <a href="/signup" class="btn-glow">
-    <i class="fas fa-user-plus"></i> Create Free Account
-  </a>
 </div>
 
-<!-- Footer -->
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label">Why CineRent</div>
+      <h2 class="section-title">Built for <em>serious</em><br>film lovers</h2>
+    </div>
+    <div class="section-count">06 features</div>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-num">01</div>
+      <div class="feature-rule"></div>
+      <div class="feature-title">Massive Library</div>
+      <p class="feature-desc">Over ten thousand titles spanning every genre, era, and language. Our catalogue grows every week with content curated by genuine cinema enthusiasts.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.08s">
+      <div class="feature-num">02</div>
+      <div class="feature-rule"></div>
+      <div class="feature-title">Instant Access</div>
+      <p class="feature-desc">Rent a title and begin watching in under thirty seconds. No waiting rooms, no queues, no pre-downloads required — just press play.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.16s">
+      <div class="feature-num">03</div>
+      <div class="feature-rule"></div>
+      <div class="feature-title">HD &amp; 4K Streaming</div>
+      <p class="feature-desc">Crystal-clear playback from 720p to cinema-grade 4K Ultra HD. Adaptive bitrate ensures smooth streaming on any connection speed.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-num">04</div>
+      <div class="feature-rule"></div>
+      <div class="feature-title">Secure Payments</div>
+      <p class="feature-desc">Every transaction is protected by bank-grade encryption. Your payment data is never stored — complete peace of mind with every rental.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.08s">
+      <div class="feature-num">05</div>
+      <div class="feature-rule"></div>
+      <div class="feature-title">Ratings &amp; Reviews</div>
+      <p class="feature-desc">Genuine reviews from our half-million member community help you choose your next film. No bots, no paid placements, no sponsored rankings.</p>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.16s">
+      <div class="feature-num">06</div>
+      <div class="feature-rule"></div>
+      <div class="feature-title">Affordable Pricing</div>
+      <p class="feature-desc">Rentals from as low as Rs 250 with no monthly commitment. Pay only for what you watch, when you watch it — on your terms.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<div class="pricing-band">
+  <div class="pricing-inner">
+    <div class="pricing-copy reveal">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">Simple,<br><em>honest</em> pricing</h2>
+      <p>No hidden fees, no recurring charges. Choose a film, pay once, enjoy it for 48 hours. That is all there is to it.</p>
+      <a href="/signup" class="btn-primary">Create Free Account</a>
+    </div>
+
+    <div class="price-card reveal">
+      <div class="price-badge">Most Popular</div>
+      <div class="price-header">Standard Rental</div>
+      <div class="price-amount">Rs 250</div>
+      <div class="price-unit">per title / 48-hour access</div>
+      <ul class="price-features">
+        <li>Full HD streaming up to 1080p</li>
+        <li>48-hour rental window</li>
+        <li>Watch on any device</li>
+        <li>Pause and resume anytime</li>
+        <li>No subscription required</li>
+      </ul>
+      <a href="/signup" class="btn-primary btn-block">Rent a Movie Now</a>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-label reveal">Join the Community</div>
+  <h2 class="cta-title reveal">
+    Your next great<br><em>film experience</em><br>awaits.
+  </h2>
+  <p class="cta-sub reveal">
+    Over 500,000 movie lovers already call CineRent home.
+    Create your free account in under a minute and start watching tonight.
+  </p>
+  <div class="cta-buttons reveal">
+    <a href="/signup" class="btn-primary">Create Free Account</a>
+    <a href="/login" class="btn-secondary">Browse the Library</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-  <div style="margin-bottom:10px;">
+  <div class="footer-brand">CineRent</div>
+  <div class="footer-links">
     <a href="#">About</a>
     <a href="#">Terms</a>
     <a href="#">Privacy</a>
     <a href="#">Contact</a>
+    <a href="#">Help</a>
   </div>
-  © 2026 CineRent. All rights reserved.
+  <div class="footer-copy">2026 CineRent. All rights reserved.</div>
 </footer>
 
-<!-- Admin shortcut -->
-<a href="/admin/login" class="admin-tiny">
-  <i class="fas fa-shield-halved"></i> Admin
-</a>
+<!-- Admin -->
+<a href="/admin/login" class="admin-link">Admin Panel</a>
 
 <script>
-  // Generate floating particles
-  const container = document.getElementById('particles');
-  for (let i = 0; i < 18; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const size = Math.random() * 6 + 3;
-    p.style.cssText = `
-      width:${size}px; height:${size}px;
-      left:${Math.random()*100}%;
-      animation-duration:${Math.random()*12+8}s;
-      animation-delay:${Math.random()*10}s;
-      background: rgba(${Math.random()>0.5?'238,9,121':'255,106,0'},${Math.random()*0.2+0.05});
-    `;
-    container.appendChild(p);
-  }
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
 </body>
