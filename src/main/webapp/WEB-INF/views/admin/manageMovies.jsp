@@ -32,40 +32,37 @@
       background: #0f3460;
       color: #fff;
       border-color: #e94560;
-      box-shadow: 0 0 0 0.2rem rgba(233,69,96,.25);
     }
     .form-control::placeholder { color: #aaa; }
     .table-dark { --bs-table-bg: #0f3460; }
 
-    /* ── Poster-update modal ── */
+    /* Banner upload modal */
     .modal-content {
       background: #0f3460;
-      border: 1px solid #1a4a7a;
       color: #fff;
-      border-radius: 14px;
+      border: 1px solid #1a4a7a;
+      border-radius: 12px;
     }
     .modal-header { border-bottom: 1px solid #1a4a7a; }
-    .modal-footer { border-top:  1px solid #1a4a7a; }
-    #posterPreview {
-      width: 120px;
-      height: 170px;
+    .modal-footer { border-top: 1px solid #1a4a7a; }
+    .banner-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #1a4a7a;
+      display: none;
+      margin-top: 10px;
+    }
+    .current-banner-wrap { text-align: center; margin-bottom: 12px; }
+    .current-banner-wrap img {
+      width: 100px;
+      height: 140px;
       object-fit: cover;
       border-radius: 8px;
       border: 2px solid #e94560;
-      display: block;
-      margin: 0 auto 12px;
-      transition: opacity .3s;
     }
-    .btn-poster {
-      background: #1a4a7a;
-      border: none;
-      color: #fff;
-      border-radius: 6px;
-      padding: 4px 9px;
-      font-size: .8rem;
-      transition: background .2s;
-    }
-    .btn-poster:hover { background: #e94560; }
+    .current-banner-wrap small { display: block; margin-top: 4px; color: #aaa; }
   </style>
 </head>
 <body>
@@ -150,7 +147,7 @@
               <th>Rating</th>
               <th>Price</th>
               <th>Available</th>
-              <th>Actions</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -179,18 +176,18 @@
                   </c:choose>
                 </td>
                 <td>
-                  <%-- Update Poster button --%>
-                  <button class="btn-poster me-1"
-                          onclick="openPosterModal(${m.id}, '${m.title}', '${m.posterUrl}')"
-                          title="Update Poster">
-                    🖼️ Poster
-                  </button>
-
                   <%-- Delete button --%>
                   <form method="post" action="/admin/movies/${m.id}/delete" class="d-inline"
                         onsubmit="return confirm('Delete ${m.title}?')">
                     <button class="btn btn-sm btn-danger">Delete</button>
                   </form>
+
+                  <%-- Update Banner button --%>
+                  <button class="btn btn-sm btn-warning ms-1"
+                          onclick="openBannerModal(${m.id}, '${m.title}', '${m.posterUrl}')"
+                          title="Update Banner">
+                    🖼 Banner
+                  </button>
                 </td>
               </tr>
             </c:forEach>
@@ -205,91 +202,87 @@
     </div>
   </div>
 
-  <%-- ══════════════ Update-Poster Modal ══════════════ --%>
-  <div class="modal fade" id="posterModal" tabindex="-1" aria-hidden="true">
+  <%-- ========== Update Banner Modal ========== --%>
+  <div class="modal fade" id="bannerModal" tabindex="-1" aria-labelledby="bannerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">🖼️ Update Poster — <span id="modalMovieTitle"></span></h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <h5 class="modal-title" id="bannerModalLabel">🖼 Update Movie Banner</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
-        <form id="posterForm" method="post" action="#">
+        <form id="bannerForm" method="post" enctype="multipart/form-data">
           <div class="modal-body">
 
-            <%-- Live preview --%>
-            <img id="posterPreview"
-                 src="https://picsum.photos/120/170"
-                 alt="Poster Preview">
+            <%-- Movie title display --%>
+            <p class="mb-3">
+              Movie: <strong id="bannerMovieTitle" class="text-warning"></strong>
+            </p>
 
-            <%-- URL input --%>
-            <label class="form-label mt-2">Poster Image URL</label>
-            <input type="url"
-                   class="form-control mb-1"
-                   id="posterUrlInput"
-                   name="posterUrl"
-                   placeholder="https://example.com/poster.jpg"
-                   oninput="updatePreview(this.value)">
-            <div class="form-text text-secondary mb-3">
-              Paste a direct image URL (JPG / PNG / WebP). The preview updates live.
+            <%-- Current poster preview --%>
+            <div class="current-banner-wrap">
+              <img id="currentBannerImg" src="" alt="Current Banner"
+                   onerror="this.src='https://picsum.photos/100/140'">
+              <small>Current Banner</small>
             </div>
 
-            <%-- Divider --%>
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <hr class="flex-grow-1" style="border-color:#1a4a7a">
-              <small class="text-secondary">or paste from clipboard</small>
-              <hr class="flex-grow-1" style="border-color:#1a4a7a">
+            <%-- File input --%>
+            <div class="mb-3">
+              <label for="bannerFileInput" class="form-label">Choose new banner image</label>
+              <input class="form-control" type="file" id="bannerFileInput" name="bannerFile"
+                     accept="image/*" required onchange="previewBanner(event)">
+              <div class="form-text text-secondary">Accepted: JPG, PNG, WebP — Max 10 MB</div>
             </div>
 
-            <button type="button" class="btn btn-outline-secondary btn-sm w-100"
-                    onclick="pasteFromClipboard()">
-              📋 Paste URL from Clipboard
-            </button>
+            <%-- New image preview --%>
+            <img id="bannerNewPreview" class="banner-preview" alt="New Banner Preview">
+
           </div>
-
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-danger px-4">💾 Save Poster</button>
+            <button type="submit" class="btn btn-warning">Upload Banner</button>
           </div>
         </form>
-
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const posterModal = new bootstrap.Modal(document.getElementById('posterModal'));
+    var bannerModal = new bootstrap.Modal(document.getElementById('bannerModal'));
 
-    function openPosterModal(movieId, movieTitle, currentUrl) {
-      document.getElementById('modalMovieTitle').textContent = movieTitle;
-      document.getElementById('posterUrlInput').value = currentUrl || '';
-      document.getElementById('posterForm').action = '/admin/movies/' + movieId + '/update-poster';
-      updatePreview(currentUrl);
-      posterModal.show();
+    function openBannerModal(movieId, movieTitle, posterUrl) {
+      // Set movie info
+      document.getElementById('bannerMovieTitle').textContent = movieTitle;
+
+      // Set current banner
+      var currentImg = document.getElementById('currentBannerImg');
+      currentImg.src = posterUrl && posterUrl.trim() !== ''
+          ? posterUrl
+          : 'https://picsum.photos/100/140';
+
+      // Set form action
+      document.getElementById('bannerForm').action = '/admin/movies/' + movieId + '/update-banner';
+
+      // Reset file input and new preview
+      document.getElementById('bannerFileInput').value = '';
+      var preview = document.getElementById('bannerNewPreview');
+      preview.style.display = 'none';
+      preview.src = '';
+
+      bannerModal.show();
     }
 
-    function updatePreview(url) {
-      const img = document.getElementById('posterPreview');
-      if (url && url.trim() !== '') {
-        img.src = url.trim();
-        img.onerror = function() {
-          this.src = 'https://picsum.photos/120/170';
-        };
-      } else {
-        img.src = 'https://picsum.photos/120/170';
-      }
-    }
-
-    async function pasteFromClipboard() {
-      try {
-        const text = await navigator.clipboard.readText();
-        const input = document.getElementById('posterUrlInput');
-        input.value = text.trim();
-        updatePreview(text.trim());
-      } catch (e) {
-        alert('Could not read clipboard. Please paste manually into the URL field.');
-      }
+    function previewBanner(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var preview = document.getElementById('bannerNewPreview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
     }
   </script>
 </body>
