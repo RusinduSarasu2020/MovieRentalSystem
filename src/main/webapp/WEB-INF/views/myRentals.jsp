@@ -715,6 +715,5 @@
   </c:choose>
 
 </div>
-
 </body>
 </html>
