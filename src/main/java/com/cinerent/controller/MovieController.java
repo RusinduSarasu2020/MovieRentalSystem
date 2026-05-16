@@ -34,6 +34,13 @@ public class MovieController {
         movie.setId(id); movieService.update(movie); return "redirect:/admin/movies";
     }
 
+    @PostMapping("/admin/movies/{id}/update-poster")
+    public String updatePoster(@PathVariable Long id,
+                               @RequestParam("posterUrl") String posterUrl) {
+        movieService.updatePosterUrl(id, posterUrl);
+        return "redirect:/admin/movies";
+    }
+
     @GetMapping("/movie/{id}")
     public String details(@PathVariable Long id, HttpSession s, Model m) {
         if (s.getAttribute("user") == null) return "redirect:/login";

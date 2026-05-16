@@ -32,9 +32,40 @@
       background: #0f3460;
       color: #fff;
       border-color: #e94560;
+      box-shadow: 0 0 0 0.2rem rgba(233,69,96,.25);
     }
     .form-control::placeholder { color: #aaa; }
     .table-dark { --bs-table-bg: #0f3460; }
+
+    /* ── Poster-update modal ── */
+    .modal-content {
+      background: #0f3460;
+      border: 1px solid #1a4a7a;
+      color: #fff;
+      border-radius: 14px;
+    }
+    .modal-header { border-bottom: 1px solid #1a4a7a; }
+    .modal-footer { border-top:  1px solid #1a4a7a; }
+    #posterPreview {
+      width: 120px;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #e94560;
+      display: block;
+      margin: 0 auto 12px;
+      transition: opacity .3s;
+    }
+    .btn-poster {
+      background: #1a4a7a;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: .8rem;
+      transition: background .2s;
+    }
+    .btn-poster:hover { background: #e94560; }
   </style>
 </head>
 <body>
@@ -119,7 +150,7 @@
               <th>Rating</th>
               <th>Price</th>
               <th>Available</th>
-              <th>Action</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -148,6 +179,14 @@
                   </c:choose>
                 </td>
                 <td>
+                  <%-- Update Poster button --%>
+                  <button class="btn-poster me-1"
+                          onclick="openPosterModal(${m.id}, '${m.title}', '${m.posterUrl}')"
+                          title="Update Poster">
+                    🖼️ Poster
+                  </button>
+
+                  <%-- Delete button --%>
                   <form method="post" action="/admin/movies/${m.id}/delete" class="d-inline"
                         onsubmit="return confirm('Delete ${m.title}?')">
                     <button class="btn btn-sm btn-danger">Delete</button>
@@ -165,5 +204,93 @@
       </div>
     </div>
   </div>
+
+  <%-- ══════════════ Update-Poster Modal ══════════════ --%>
+  <div class="modal fade" id="posterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">🖼️ Update Poster — <span id="modalMovieTitle"></span></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <form id="posterForm" method="post" action="#">
+          <div class="modal-body">
+
+            <%-- Live preview --%>
+            <img id="posterPreview"
+                 src="https://picsum.photos/120/170"
+                 alt="Poster Preview">
+
+            <%-- URL input --%>
+            <label class="form-label mt-2">Poster Image URL</label>
+            <input type="url"
+                   class="form-control mb-1"
+                   id="posterUrlInput"
+                   name="posterUrl"
+                   placeholder="https://example.com/poster.jpg"
+                   oninput="updatePreview(this.value)">
+            <div class="form-text text-secondary mb-3">
+              Paste a direct image URL (JPG / PNG / WebP). The preview updates live.
+            </div>
+
+            <%-- Divider --%>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <hr class="flex-grow-1" style="border-color:#1a4a7a">
+              <small class="text-secondary">or paste from clipboard</small>
+              <hr class="flex-grow-1" style="border-color:#1a4a7a">
+            </div>
+
+            <button type="button" class="btn btn-outline-secondary btn-sm w-100"
+                    onclick="pasteFromClipboard()">
+              📋 Paste URL from Clipboard
+            </button>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger px-4">💾 Save Poster</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const posterModal = new bootstrap.Modal(document.getElementById('posterModal'));
+
+    function openPosterModal(movieId, movieTitle, currentUrl) {
+      document.getElementById('modalMovieTitle').textContent = movieTitle;
+      document.getElementById('posterUrlInput').value = currentUrl || '';
+      document.getElementById('posterForm').action = '/admin/movies/' + movieId + '/update-poster';
+      updatePreview(currentUrl);
+      posterModal.show();
+    }
+
+    function updatePreview(url) {
+      const img = document.getElementById('posterPreview');
+      if (url && url.trim() !== '') {
+        img.src = url.trim();
+        img.onerror = function() {
+          this.src = 'https://picsum.photos/120/170';
+        };
+      } else {
+        img.src = 'https://picsum.photos/120/170';
+      }
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        const input = document.getElementById('posterUrlInput');
+        input.value = text.trim();
+        updatePreview(text.trim());
+      } catch (e) {
+        alert('Could not read clipboard. Please paste manually into the URL field.');
+      }
+    }
+  </script>
 </body>
 </html>
