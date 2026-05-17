@@ -3,6 +3,7 @@ package com.cinerent.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+//@Entity (JPA annotation) used to map Java classes to database tables.
 @Entity
 @Table(name = "rentals")
 public class Rental {
