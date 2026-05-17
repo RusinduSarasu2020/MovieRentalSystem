@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class RentalController {
     @Autowired private RentalService rentalService;
-
+// Connects Spring Web app with URL in browser
     @GetMapping("/my-rentals")
     public String myRentals(HttpSession s, Model m) {
         User u = (User) s.getAttribute("user");
