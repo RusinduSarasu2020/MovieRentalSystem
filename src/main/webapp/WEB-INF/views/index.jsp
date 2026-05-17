@@ -953,8 +953,8 @@
   <div class="footer-brand">CineRent</div>
   <div class="footer-links">
     <a href="#">About</a>
-    <a href="#">Terms</a>
-    <a href="#">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/privacy">Privacy</a>
     <a href="#">Contact</a>
     <a href="#">Help</a>
   </div>
