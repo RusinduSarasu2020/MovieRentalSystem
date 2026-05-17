@@ -547,6 +547,29 @@
       .rental-card { padding: 16px; }
       .rental-title { font-size: 1.1rem; }
     }
+
+    /* Settings Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-content-custom {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+      width: 100%; max-width: 400px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .modal-header-custom { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header-custom h3 { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 1px; color: var(--text); margin: 0; }
+    .close-btn { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; }
+    .close-btn:hover { color: var(--red); }
+    .form-group-custom { margin-bottom: 16px; text-align: left; }
+    .form-group-custom label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; font-family: var(--font-mono); letter-spacing: 0.5px; }
+    .form-group-custom input { 
+      width: 100%; height: 42px; background: var(--bg); border: 1px solid var(--border); 
+      border-radius: 3px; color: var(--text); padding: 0 12px; font-family: var(--font-body);
+    }
+    .form-group-custom input:focus { outline: none; border-color: rgba(200,169,110,0.4); }
+    .btn-save { width: 100%; background: var(--accent); color: #0a0800; border: none; padding: 12px; border-radius: 2px; font-family: var(--font-mono); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; cursor: pointer; transition: background 0.2s; }
+    .btn-save:hover { background: var(--accent2); }
   </style>
 </head>
 <body>
@@ -558,6 +581,9 @@
     <a href="/home" class="btn-nav btn-nav-ghost">
       <i class="fas fa-film" style="font-size:0.7rem;margin-right:4px;"></i> Browse
     </a>
+    <button onclick="openSettingsModal()" class="btn-nav btn-nav-ghost" style="border:none; cursor:pointer;" title="Settings">
+      <i class="fas fa-cog" style="font-size:0.8rem;"></i>
+    </button>
     <a href="/logout" class="btn-nav btn-nav-logout">
       <i class="fas fa-right-from-bracket" style="font-size:0.7rem;margin-right:4px;"></i> Logout
     </a>
@@ -715,5 +741,41 @@
   </c:choose>
 
 </div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal-overlay">
+  <div class="modal-content-custom">
+    <div class="modal-header-custom">
+      <h3>Account Settings</h3>
+      <button type="button" class="close-btn" onclick="closeSettingsModal()">&times;</button>
+    </div>
+    <form action="/user/update" method="POST">
+      <div class="form-group-custom">
+        <label>Username</label>
+        <input type="text" name="username" value="${sessionScope.user.username}" required>
+      </div>
+      <div class="form-group-custom">
+        <label>Email Address</label>
+        <input type="email" name="email" value="${sessionScope.user.email}" required>
+      </div>
+      <div class="form-group-custom">
+        <label>New Password (leave blank to keep current)</label>
+        <input type="password" name="password" placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn-save">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
+  function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
+  <c:if test="${not empty successMessage}">
+    setTimeout(() => {
+      alert('${successMessage}');
+    }, 100);
+  </c:if>
+</script>
+
 </body>
 </html>
