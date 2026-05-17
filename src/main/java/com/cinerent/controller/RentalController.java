@@ -10,13 +10,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class RentalController {
-    @Autowired private RentalService rentalService;
-// Connects Spring Web app with URL in browser
+
+    @Autowired
+    private RentalService rentalService;
+
+    // Connects the Spring web app to the "/my-rentals" URL in the browser.
     @GetMapping("/my-rentals")
-    public String myRentals(HttpSession s, Model m) {
-        User u = (User) s.getAttribute("user");
-        if (u == null) return "redirect:/login";
-        m.addAttribute("rentals", rentalService.byUser(u));
+    public String myRentals(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("rentals", rentalService.byUser(user));
         return "myRentals";
     }
 }
