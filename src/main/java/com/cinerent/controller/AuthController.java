@@ -22,6 +22,7 @@ public class AuthController {
                          @RequestParam String password2, Model model) {
         if (!password.equals(password2)) { model.addAttribute("error","Passwords don't match"); return "signup"; }
         if (userService.existsByUsername(username)) { model.addAttribute("error","Username taken"); return "signup"; }
+        if (userService.existsByEmail(email)) { model.addAttribute("error","Email already in use"); return "signup"; }
         userService.register(new User(username, email, phone, password));
         return "redirect:/login";
     }
