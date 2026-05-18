@@ -25,4 +25,5 @@ public class UserService {
     }
     public Optional<User> findById(Long id) { return repo.findById(id); }
     public boolean existsByUsername(String u) { return repo.findByUsername(u).isPresent(); }
+    public boolean existsByEmail(String email) { return repo.findByEmail(email).isPresent(); }
 }
