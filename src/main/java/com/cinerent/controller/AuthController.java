@@ -15,6 +15,7 @@ public class AuthController {
     @GetMapping("/login") public String loginPage() { return "login"; }
     @GetMapping("/signup") public String signupPage() { return "signup"; }
     @GetMapping("/admin/login") public String adminLoginPage() { return "adminLogin"; }
+    @GetMapping("/forgot-password") public String forgotPasswordPage(Model model) { model.addAttribute("error", "Please contact the administrator to reset your password."); return "login"; }
 
     @PostMapping("/signup")
     public String signup(@RequestParam String username, @RequestParam String email,
